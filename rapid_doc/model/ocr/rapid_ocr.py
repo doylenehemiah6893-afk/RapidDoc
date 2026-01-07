@@ -175,7 +175,7 @@ class RapidOcrModel(object):
         op_record: Dict[str, Any],
         raw_h: int,
         raw_w: int,
-        ori_img: np.ndarray,
+        ori_img: np.ndarray | None = None,
     ) -> Any:
         rec_res = self.ocr_engine.cal_rec_boxes(
             img, dt_boxes, rec_res, self.ocr_engine.return_single_char_box
@@ -192,9 +192,12 @@ class RapidOcrModel(object):
                     np.array([bbox]).astype(np.float64), op_record, raw_h, raw_w
                 )
                 origin_words_points = origin_words_points.astype(np.int32).tolist()[0]
-                char_bg_color, char_fg_color = estimate_text_colors(
-                    ori_img, origin_words_points, img_mode="bgr"
-                )
+                if ori_img is not None:
+                    char_bg_color, char_fg_color = estimate_text_colors(
+                        ori_img, origin_words_points, img_mode="bgr"
+                    )
+                else:
+                    char_bg_color, char_fg_color = None, None
                 origin_words_item.append(
                     (txt, score, origin_words_points, None, char_bg_color, char_fg_color)
                 )
