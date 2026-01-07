@@ -282,7 +282,7 @@ class RapidOcrModel(object):
 
         width_list = [img.shape[1] / float(img.shape[0]) for img in img_list]
 
-        # Sorting can speed up the recognition process
+        # 排序可以加速识别过程
         indices = np.argsort(np.array(width_list))
 
         img_num = len(img_list)
@@ -295,7 +295,7 @@ class RapidOcrModel(object):
             for beg_img_no in range(0, img_num, batch_num):
                 end_img_no = min(img_num, beg_img_no + batch_num)
 
-                # Parameter Alignment for PaddleOCR
+                # PaddleOCR 参数对齐
                 imgC, imgH, imgW = self.text_recognizer.rec_image_shape[:3]
                 max_wh_ratio = imgW / imgH
                 wh_ratio_list = []
