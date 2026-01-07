@@ -17,6 +17,7 @@ from rapidocr import RapidOCR, EngineType, OCRVersion, ModelType
 from rapidocr.ch_ppocr_rec import TextRecInput, TextRecOutput
 from tqdm import tqdm
 
+from rapid_doc.utils.color_utils import estimate_text_colors
 from rapid_doc.utils.config_reader import get_device
 from rapid_doc.utils.model_utils import check_openvino
 from rapid_doc.utils.ocr_utils import check_img, preprocess_image, sorted_boxes, merge_det_boxes, update_det_boxes, get_rotate_crop_image
@@ -188,7 +189,12 @@ class RapidOcrModel(object):
                     np.array([bbox]).astype(np.float64), op_record, raw_h, raw_w
                 )
                 origin_words_points = origin_words_points.astype(np.int32).tolist()[0]
-                origin_words_item.append((txt, score, origin_words_points))
+                char_bg_color, char_fg_color = estimate_text_colors(
+                    ori_img, origin_words_points, img_mode="bgr"
+                )
+                origin_words_item.append(
+                    (txt, score, origin_words_points, None, char_bg_color, char_fg_color)
+                )
 
             if origin_words_item:
                 origin_words.append(tuple(origin_words_item))
