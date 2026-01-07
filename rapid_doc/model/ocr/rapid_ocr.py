@@ -158,7 +158,9 @@ class RapidOcrModel(object):
                         op_record = {'padding_1': {'left': 0, 'top': 0}, 'preprocess': {'ratio_h': 1.0, 'ratio_w': 1.0}}
                         raw_h, raw_w = ori_img.shape[:2]
                         dt_boxes_np = [np.array(box, dtype=np.float32) for box in dt_boxes]
-                        word_results = self.calc_word_boxes(img, dt_boxes_np, rec_result, op_record, raw_h, raw_w)
+                        word_results = self.calc_word_boxes(
+                            img, dt_boxes_np, rec_result, op_record, raw_h, raw_w, ori_img
+                        )
                         rec_res = list(zip(rec_result.txts, rec_result.scores, word_results))
                     else:
                         rec_res = list(zip(rec_result.txts, rec_result.scores))
@@ -173,6 +175,7 @@ class RapidOcrModel(object):
         op_record: Dict[str, Any],
         raw_h: int,
         raw_w: int,
+        ori_img: np.ndarray,
     ) -> Any:
         rec_res = self.ocr_engine.cal_rec_boxes(
             img, dt_boxes, rec_res, self.ocr_engine.return_single_char_box
