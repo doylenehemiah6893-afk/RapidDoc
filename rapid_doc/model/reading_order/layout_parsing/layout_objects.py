@@ -719,7 +719,7 @@ class LayoutBlock(object):
                     and not is_numeric(last_char)
                     and need_new_line_num > len(text_lines) * 0.5
                 ) or need_new_line_num > len(text_lines) * 0.6:
-                    content += f"\n"
+                    content += "\n"
                 if (
                     block_stop - line.region_box[coord_end_idx]
                     > (block_stop - block_start) * 0.3

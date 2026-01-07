@@ -475,8 +475,6 @@ class TheseusLayer(nn.Module):
         # init the output of net
         if return_patterns or return_stages:
             if return_patterns and return_stages:
-                msg = f"The 'return_patterns' would be ignored when 'return_stages' is set."
-
                 return_stages = None
 
             if return_stages is True:
@@ -487,8 +485,6 @@ class TheseusLayer(nn.Module):
                 return_stages = [return_stages]
             if isinstance(return_stages, list):
                 if max(return_stages) > len(stages_pattern) or min(return_stages) < 0:
-                    msg = f"The 'return_stages' set error. Illegal value(s) have been ignored. The stages' pattern list is {stages_pattern}."
-
                     return_stages = [
                         val
                         for val in return_stages
@@ -624,7 +620,6 @@ class TheseusLayer(nn.Module):
         for layer_dict in layer_list:
             name, index_list = layer_dict["name"], layer_dict["index_list"]
             if not set_identity(parent_layer, name, index_list):
-                msg = f"Failed to set the layers that after stop_layer_name('{stop_layer_name}') to IdentityLayer. The error layer's name is '{name}'."
                 return False
             parent_layer = layer_dict["layer"]
 
@@ -656,7 +651,6 @@ class TheseusLayer(nn.Module):
 
         res = self.upgrade_sublayer(layer_name, stop_grad)
         if len(res) == 0:
-            msg = "Failed to stop the gradient before the layer named '{layer_name}'"
             return False
         return True
 
@@ -765,7 +759,6 @@ def parse_pattern_str(
 
     pattern_list = pattern.split(".")
     if not pattern_list:
-        msg = f"The pattern('{pattern}') is illegal. Please check and retry."
         return None
 
     layer_list = []
@@ -782,7 +775,6 @@ def parse_pattern_str(
         target_layer = getattr(parent_layer, target_layer_name, None)
 
         if target_layer is None:
-            msg = f"Not found layer named('{target_layer_name}') specified in pattern('{pattern}')."
             return None
 
         if target_layer_index_list:
@@ -790,7 +782,6 @@ def parse_pattern_str(
                 if int(target_layer_index) < 0 or int(target_layer_index) >= len(
                     target_layer
                 ):
-                    msg = f"Not found layer by index('{target_layer_index}') specified in pattern('{pattern}'). The index should < {len(target_layer)} and > 0."
                     return None
                 target_layer = target_layer[target_layer_index]
 

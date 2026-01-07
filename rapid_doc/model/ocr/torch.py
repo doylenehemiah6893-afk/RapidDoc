@@ -4,9 +4,8 @@ import numpy as np
 import torch
 from omegaconf import OmegaConf
 from importlib.metadata import version
-rapidocr_version = version("rapidocr")
 
-if rapidocr_version >= "3.4.3":
+if version("rapidocr") >= "3.4.3":
     from rapidocr.inference_engine.pytorch.networks.architectures.base_model import BaseModel
     from rapidocr.inference_engine.pytorch.networks.backbones.rec_hgnet import ConvBNAct
 else:

@@ -19,10 +19,8 @@ from rapid_doc.backend.pipeline.pipeline_analyze import doc_analyze as pipeline_
 from rapid_doc.backend.pipeline.pipeline_middle_json_mkcontent import union_make as pipeline_union_make
 from rapid_doc.backend.pipeline.model_json_to_middle_json import result_to_middle_json as pipeline_result_to_middle_json
 
-from rapidocr import EngineType as OCREngineType, OCRVersion, ModelType as OCRModelType
 from rapid_doc.model.layout.rapid_layout_self import ModelType as LayoutModelType
-from rapid_doc.model.formula.rapid_formula_self import ModelType as FormulaModelType, EngineType as FormulaEngineType
-from rapid_doc.model.table.rapid_table_self import ModelType as TableModelType
+from rapid_doc.model.formula.rapid_formula_self import ModelType as FormulaModelType
 
 def do_parse(
     output_dir,  # Output directory for storing parsing results

@@ -112,7 +112,7 @@ def get_bbox_for_chunk(chunk_content, block_list=None, matched_global_indices=No
             # print(f"[INFO] 为chunk找到{len(positions)}个位置（最高相似度: {best_ratio:.3f}），并已记录 matched_global_indices")
             return positions
         else:
-            print(f"[WARNING] 未能提取到有效的位置信息")
+            print("[WARNING] 未能提取到有效的位置信息")
             return None
     except Exception as e:
         print(f"[ERROR] 获取chunk位置失败: {e}")
@@ -135,7 +135,6 @@ if __name__ == '__main__':
     mineru_middle_path = r"D:\CodeProjects\doc\RapidAI\RapidDoc\output888\1 - 副本 (3)\auto\1 - 副本 (3)_middle.json"
     with open(mineru_middle_path, 'r', encoding='utf-8') as f:
         middle_json_content = json.load(f)
-        print(position_int_temp)
     start_time = time.time()
     block_list = get_blocks_from_middle(middle_json_content)
     matched_global_indices = set()

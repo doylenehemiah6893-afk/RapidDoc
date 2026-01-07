@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 import numpy as np
 

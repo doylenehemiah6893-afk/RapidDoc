@@ -14,15 +14,11 @@
 
 import math
 import os
-import re
-import numpy as np
-import inspect
 import torch
 import torch.nn as nn
-from typing import Optional, Tuple, Union, List, Dict, Any
-from dataclasses import dataclass, fields, is_dataclass
+from typing import Dict, Any
+from dataclasses import dataclass
 
-from sympy import totient
 
 from .rec_unimernet_head import (
     MBartForCausalLM,
@@ -130,8 +126,6 @@ class AttentionMaskConverter:
         bsz, tgt_len = input_ids_shape
         mask = torch.full((tgt_len, tgt_len), torch.finfo(dtype).min)
         mask_cond = torch.arange(mask.shape[-1])
-        mask_cond_parallel = torch.arange(mask.shape[-1])
-
         mask_parallel = torch.arange(0, tgt_len, step=parallel_step).reshape([1, -1])
         mask_parallel = torch.repeat_interleave(mask_parallel, parallel_step, 1)[
             :, :tgt_len
@@ -382,9 +376,6 @@ def _prepare_4d_causal_attention_mask_export(
     )
     key_value_length = input_shape[-1] + past_key_values_length
 
-    shape = attention_mask.shape
-    len_shape = len(shape)
-
     attention_mask = attn_mask_converter.to_4d_export(
         attention_mask,
         input_shape[-1],
@@ -400,7 +391,6 @@ def _prepare_4d_causal_attention_mask_export(
 class CustomMBartDecoder(MBartDecoder):
     def __init__(self, config):
         super().__init__(config)
-        hidden_size = config.d_model
         self.is_export = config.is_export
         self.config_decoder = config
 
@@ -1106,9 +1096,6 @@ class PPFormulaNet_Head(UniMERNetHead):
 
         while i_idx < parallel_length:
 
-            model_inputs = self.prepare_inputs_for_generation_export(
-                past_key_values=past_key_values, **model_kwargs
-            )
             decoder_attention_mask = torch.ones(input_ids.shape, device=self.device)
 
             outputs = self.generate_single_iter(
@@ -1145,8 +1132,6 @@ class PPFormulaNet_Head(UniMERNetHead):
                     [input_ids, next_tokens.unsqueeze(1)], dim=-1
                 )
                 decoder_input_ids = next_tokens.unsqueeze(1)
-
-            past_length = past_key_values[0][0].shape[2]
 
             past_key_values = outputs.past_key_values
             cache_position = cache_position[-1:] + 1
@@ -1208,7 +1193,6 @@ class PPFormulaNet_Head(UniMERNetHead):
             bos_token_id=generation_config["bos_token_id"],
         )
 
-        decoder_input_ids = input_ids
         model_kwargs["key use_cache"] = True
         batch_size, cur_len = input_ids.shape
 
@@ -1226,8 +1210,6 @@ class PPFormulaNet_Head(UniMERNetHead):
         else:
             unfinished_sequences = torch.ones(batch_size, dtype=torch.int64)
             parallel_length = self.max_seq_len
-        past_key_values = []
-
         for idx in range(parallel_length):
 
             model_inputs = self.prepare_inputs_for_generation(input_ids, **model_kwargs)

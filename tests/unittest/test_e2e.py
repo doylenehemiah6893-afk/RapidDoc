@@ -3,25 +3,27 @@ import copy
 import json
 import os
 from pathlib import Path
-from loguru import logger
 from bs4 import BeautifulSoup
-from fuzzywuzzy import fuzz
-from rapid_doc.cli.common import (
-    convert_pdf_bytes_to_bytes_by_pypdfium2,
-    prepare_env,
-    read_fn,
-)
-from rapid_doc.data.data_reader_writer import FileBasedDataWriter
-from rapid_doc.utils.enum_class import MakeMode
-from rapid_doc.backend.pipeline.pipeline_analyze import doc_analyze as pipeline_doc_analyze
-from rapid_doc.backend.pipeline.pipeline_middle_json_mkcontent import (
-    union_make as pipeline_union_make,
-)
-from rapid_doc.backend.pipeline.model_json_to_middle_json import (
-    result_to_middle_json as pipeline_result_to_middle_json,
-)
 
 def test_pipeline_with_two_config():
+    import pytest
+    pytest.importorskip("cv2")
+
+    from rapid_doc.cli.common import (
+        convert_pdf_bytes_to_bytes_by_pypdfium2,
+        prepare_env,
+        read_fn,
+    )
+    from rapid_doc.data.data_reader_writer import FileBasedDataWriter
+    from rapid_doc.utils.enum_class import MakeMode
+    from rapid_doc.backend.pipeline.pipeline_analyze import doc_analyze as pipeline_doc_analyze
+    from rapid_doc.backend.pipeline.pipeline_middle_json_mkcontent import (
+        union_make as pipeline_union_make,
+    )
+    from rapid_doc.backend.pipeline.model_json_to_middle_json import (
+        result_to_middle_json as pipeline_result_to_middle_json,
+    )
+
     __dir__ = os.path.dirname(os.path.abspath(__file__))
     pdf_files_dir = os.path.join(__dir__, "pdfs")
     output_dir = os.path.join(__dir__, "output")
@@ -65,6 +67,11 @@ def test_pipeline_with_two_config():
         pdf_file_names,
         output_dir,
         parse_method="txt",
+        prepare_env=prepare_env,
+        pipeline_union_make=pipeline_union_make,
+        pipeline_result_to_middle_json=pipeline_result_to_middle_json,
+        file_writer_cls=FileBasedDataWriter,
+        make_mode=MakeMode,
     )
     res_json_path = (
         Path(__file__).parent / "output" / "test" / "txt" / "test_content_list.json"
@@ -86,6 +93,11 @@ def test_pipeline_with_two_config():
         pdf_file_names,
         output_dir,
         parse_method="ocr",
+        prepare_env=prepare_env,
+        pipeline_union_make=pipeline_union_make,
+        pipeline_result_to_middle_json=pipeline_result_to_middle_json,
+        file_writer_cls=FileBasedDataWriter,
+        make_mode=MakeMode,
     )
     res_json_path = (
         Path(__file__).parent / "output" / "test" / "ocr" / "test_content_list.json"
@@ -102,16 +114,23 @@ def write_infer_result(
     pdf_file_names,
     output_dir,
     parse_method,
+    prepare_env,
+    pipeline_union_make,
+    pipeline_result_to_middle_json,
+    file_writer_cls,
+    make_mode,
 ):
+    from loguru import logger
+
     for idx, model_list in enumerate(infer_results):
         model_json = copy.deepcopy(model_list)
         pdf_file_name = pdf_file_names[idx]
         local_image_dir, local_md_dir = prepare_env(
             output_dir, pdf_file_name, parse_method
         )
-        image_writer, md_writer = FileBasedDataWriter(
+        image_writer, md_writer = file_writer_cls(
             local_image_dir
-        ), FileBasedDataWriter(local_md_dir)
+        ), file_writer_cls(local_md_dir)
 
         images_list = all_image_lists[idx]
         pdf_doc = all_pdf_docs[idx]
@@ -131,13 +150,13 @@ def write_infer_result(
 
         image_dir = str(os.path.basename(local_image_dir))
         # 写入 md 文件
-        md_content_str = pipeline_union_make(pdf_info, MakeMode.MM_MD, image_dir)
+        md_content_str = pipeline_union_make(pdf_info, make_mode.MM_MD, image_dir)
         md_writer.write_string(
             f"{pdf_file_name}.md",
             md_content_str,
         )
 
-        content_list = pipeline_union_make(pdf_info, MakeMode.CONTENT_LIST, image_dir)
+        content_list = pipeline_union_make(pdf_info, make_mode.CONTENT_LIST, image_dir)
         md_writer.write_string(
             f"{pdf_file_name}_content_list.json",
             json.dumps(content_list, ensure_ascii=False, indent=4),
@@ -158,13 +177,16 @@ def write_infer_result(
 
 def validate_html(html_content):
     try:
-        soup = BeautifulSoup(html_content, "html.parser")
+        BeautifulSoup(html_content, "html.parser")
         return True
-    except Exception as e:
+    except Exception:
         return False
 
 
 def assert_content(content_path, parse_method="txt"):
+    import pytest
+    fuzz = pytest.importorskip("fuzzywuzzy").fuzz
+
     content_list = []
     with open(content_path, "r", encoding="utf-8") as file:
         content_list = json.load(file)

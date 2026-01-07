@@ -1,8 +1,6 @@
 import copy
 import math
 import os
-import re
-import numpy as np
 import inspect
 import warnings
 from collections import OrderedDict
@@ -376,9 +374,6 @@ def _prepare_4d_causal_attention_mask_export(
         is_causal=True, sliding_window=sliding_window
     )
     key_value_length = input_shape[-1] + past_key_values_length
-
-    shape = attention_mask.shape
-    len_shape = len(shape)
 
     attention_mask = attn_mask_converter.to_4d_export(
         attention_mask,
@@ -2485,7 +2480,6 @@ class UniMERNetHead(nn.Module):
             init_arr = torch.zeros([batch_size, 16, 0, 64])
             cache = (init_arr, init_arr, init_arr, init_arr)
             past_key_values.append(cache)
-        idx = 0
         while i_idx < torch.Tensor(self.max_seq_len):
 
             model_inputs = self.prepare_inputs_for_generation_export(
@@ -2513,7 +2507,6 @@ class UniMERNetHead(nn.Module):
                         1 - unfinished_sequences
                 )
             input_ids = torch.concat([input_ids, next_tokens.unsqueeze(1)], dim=-1)
-            past_length = past_key_values[0][0].shape[2]
             decoder_input_ids = next_tokens.unsqueeze(1)
             past_key_values = outputs.past_key_values
             cache_position = cache_position[-1:] + 1

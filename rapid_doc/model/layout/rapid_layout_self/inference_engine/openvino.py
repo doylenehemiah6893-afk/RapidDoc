@@ -6,6 +6,11 @@ import numpy as np
 from importlib.metadata import version
 from packaging.version import Version
 
+from ..model_handler.utils import ModelProcessor
+from ..utils.logger import Logger
+from ..utils.typings import RapidLayoutInput
+from .base import InferSession
+
 try:
     import openvino as ov
     from openvino.runtime import Core
@@ -19,12 +24,6 @@ if openvino_version < Version("2025.4.0"):
         f"openvino version must be >= 2025.4.0, but found {openvino_version}. "
         "Please upgrade with: pip install -U openvino"
     )
-
-from ..model_handler.utils import ModelProcessor
-from ..utils.logger import Logger
-from ..utils.typings import RapidLayoutInput
-from .base import InferSession
-
 
 class OpenVINOInferSession(InferSession):
     def __init__(self, cfg: RapidLayoutInput):
@@ -142,7 +141,7 @@ class OpenVINOInferSession(InferSession):
         try:
             rt_info = self.model.get_rt_info()
             return key in rt_info
-        except:
+        except Exception:
             return False
 
 

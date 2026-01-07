@@ -170,7 +170,6 @@ if __name__ == '__main__':
         logger.error(f"Error in __main__ test block: {e_main_test}")
     finally:
         # Clean up the main test temporary directory
-        import shutil
         if os.path.exists(test_job_temp_dir):
             # shutil.rmtree(test_job_temp_dir)
             # logger.info(f"Cleaned up test temporary directory: {test_job_temp_dir}")

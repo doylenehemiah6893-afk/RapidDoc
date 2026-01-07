@@ -120,7 +120,7 @@ class OpenVINOInferSession(InferSession):
         try:
             rt_info = self.model.get_rt_info()
             return key in rt_info
-        except:
+        except Exception:
             return False
 
 

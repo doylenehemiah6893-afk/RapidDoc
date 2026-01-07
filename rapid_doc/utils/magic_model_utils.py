@@ -48,13 +48,16 @@ def tie_up_category_by_distance_v3(
     objects = get_objects_func()
 
     # 如果没有提供自定义提取函数，使用默认函数
+    def default_extract(value):
+        return value
+
     if extract_subject_func is None:
-        extract_subject_func = lambda x: x
+        extract_subject_func = default_extract
     if extract_object_func is None:
-        extract_object_func = lambda x: x
+        extract_object_func = default_extract
 
     ret = []
-    N, M = len(subjects), len(objects)
+    N = len(subjects)
     subjects.sort(key=lambda x: x["bbox"][0] ** 2 + x["bbox"][1] ** 2)
     objects.sort(key=lambda x: x["bbox"][0] ** 2 + x["bbox"][1] ** 2)
 

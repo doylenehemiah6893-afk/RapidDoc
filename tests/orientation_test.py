@@ -1,8 +1,8 @@
-import cv2
+if __name__ == '__main__':
+    import cv2
+    from rapid_orientation import RapidOrientation
 
-from rapid_orientation import RapidOrientation
-
-orientation_engine = RapidOrientation()
-img = cv2.imread("table_90.png")
-cls_result, _ = orientation_engine(img)
-print(cls_result)
+    orientation_engine = RapidOrientation()
+    img = cv2.imread("table_90.png")
+    cls_result, _ = orientation_engine(img)
+    print(cls_result)

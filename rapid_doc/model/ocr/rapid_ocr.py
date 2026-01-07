@@ -1,27 +1,26 @@
-from typing import List, Dict, Any
-
-from rapid_doc.model.ocr.ocr_patch import apply_ocr_patch
-
-# 应用所有 OCR 相关补丁
-apply_ocr_patch()
-
 import os
 import cv2
 import copy
 import time
 import warnings
-import numpy as np
 from pathlib import Path
+from typing import List, Dict, Any
+
+import numpy as np
 from loguru import logger
-from rapidocr import RapidOCR, EngineType, OCRVersion, ModelType
+from rapidocr import RapidOCR, EngineType, OCRVersion
 from rapidocr.ch_ppocr_rec import TextRecInput, TextRecOutput
+from rapidocr.inference_engine.base import InferSession
 from tqdm import tqdm
 
+from rapid_doc.model.ocr.ocr_patch import apply_ocr_patch
 from rapid_doc.utils.color_utils import estimate_text_colors
 from rapid_doc.utils.config_reader import get_device
 from rapid_doc.utils.model_utils import check_openvino
 from rapid_doc.utils.ocr_utils import check_img, preprocess_image, sorted_boxes, merge_det_boxes, update_det_boxes, get_rotate_crop_image
-from rapidocr.inference_engine.base import InferSession
+
+# 应用所有 OCR 相关补丁
+apply_ocr_patch()
 models_dir = os.getenv('RAPID_MODELS_DIR', None)
 if models_dir:
     # 从指定的文件夹内寻找模型文件
@@ -106,7 +105,7 @@ class RapidOcrModel(object):
             dt_boxes=None,
             ):
         assert isinstance(img, (np.ndarray, list, str, bytes))
-        if isinstance(img, list) and det == True:
+        if isinstance(img, list) and det:
             logger.error('When input a list of images, det must be false')
             exit(0)
         img = check_img(img)
@@ -130,7 +129,7 @@ class RapidOcrModel(object):
                 for img in imgs:
                     img = preprocess_image(img)
                     det_res = self.text_detector(img)
-                    dt_boxes, elapse = det_res.boxes, det_res.elapse
+                    dt_boxes = det_res.boxes
                     # logger.debug("dt_boxes num : {}, elapse : {}".format(len(dt_boxes), elapse))
                     if dt_boxes is None:
                         ocr_res.append(None)

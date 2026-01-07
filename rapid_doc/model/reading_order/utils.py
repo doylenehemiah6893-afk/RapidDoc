@@ -1,7 +1,8 @@
 from copy import deepcopy
-from typing import Any, List, Dict, Tuple, Optional, Union
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
+from typing import List, Tuple, Optional, Union
+
+import cv2
+import numpy as np
 
 def caculate_bbox_area(bbox):
     """Calculate bounding box area"""
@@ -122,11 +123,6 @@ def remove_overlap_blocks(
 
     return bboxes, dropped_boxes
 
-
-from typing import Optional, Tuple
-
-import cv2
-import numpy as np
 
 class VisReadOrder:
     @classmethod

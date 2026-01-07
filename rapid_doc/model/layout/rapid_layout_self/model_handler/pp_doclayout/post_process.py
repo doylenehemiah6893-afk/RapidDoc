@@ -159,7 +159,7 @@ class PPPostProcess:
             elif isinstance(layout_unclip_ratio, (tuple, list)):
                 assert (
                     len(layout_unclip_ratio) == 2
-                ), f"The length of `layout_unclip_ratio` should be 2."
+                ), "The length of `layout_unclip_ratio` should be 2."
             elif isinstance(layout_unclip_ratio, dict):
                 pass
             else:
@@ -331,63 +331,6 @@ def restructured_boxes(
         )
 
     return box_list
-
-def unclip_boxes(boxes, unclip_ratio=None):
-    """
-    Expand bounding boxes from (x1, y1, x2, y2) format using an unclipping ratio.
-
-    Parameters:
-    - boxes: np.ndarray of shape (N, 4), where each row is (x1, y1, x2, y2).
-    - unclip_ratio: tuple of (width_ratio, height_ratio), optional.
-
-    Returns:
-    - expanded_boxes: np.ndarray of shape (N, 4), where each row is (x1, y1, x2, y2).
-    """
-    if unclip_ratio is None:
-        return boxes
-
-    if isinstance(unclip_ratio, dict):
-        expanded_boxes = []
-        for box in boxes:
-            class_id, score, x1, y1, x2, y2 = box
-            if class_id in unclip_ratio:
-                width_ratio, height_ratio = unclip_ratio[class_id]
-
-                width = x2 - x1
-                height = y2 - y1
-
-                new_w = width * width_ratio
-                new_h = height * height_ratio
-                center_x = x1 + width / 2
-                center_y = y1 + height / 2
-
-                new_x1 = center_x - new_w / 2
-                new_y1 = center_y - new_h / 2
-                new_x2 = center_x + new_w / 2
-                new_y2 = center_y + new_h / 2
-
-                expanded_boxes.append([class_id, score, new_x1, new_y1, new_x2, new_y2])
-            else:
-                expanded_boxes.append(box)
-        return np.array(expanded_boxes)
-
-    else:
-        widths = boxes[:, 4] - boxes[:, 2]
-        heights = boxes[:, 5] - boxes[:, 3]
-
-        new_w = widths * unclip_ratio[0]
-        new_h = heights * unclip_ratio[1]
-        center_x = boxes[:, 2] + widths / 2
-        center_y = boxes[:, 3] + heights / 2
-
-        new_x1 = center_x - new_w / 2
-        new_y1 = center_y - new_h / 2
-        new_x2 = center_x + new_w / 2
-        new_y2 = center_y + new_h / 2
-        expanded_boxes = np.column_stack(
-            (boxes[:, 0], boxes[:, 1], new_x1, new_y1, new_x2, new_y2)
-        )
-        return expanded_boxes
 
 def restructured_rotated_boxes(
     boxes, labels: List[str], img_size: Tuple[int, int]

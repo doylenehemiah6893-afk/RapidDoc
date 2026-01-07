@@ -1,6 +1,4 @@
 import json
-from chunker.text_splitters import MarkdownTextSplitter, num_tokens_from_string
-from chunker.get_bbox_page_fast import get_bbox_for_chunk, get_blocks_from_middle
 import re
 from bs4 import BeautifulSoup
 
@@ -52,6 +50,8 @@ def clean_text_for_embedding(text: str) -> str:
 
 
 if __name__ == '__main__':
+    from chunker.text_splitters import MarkdownTextSplitter, num_tokens_from_string
+    from chunker.get_bbox_page_fast import get_bbox_for_chunk, get_blocks_from_middle
 
 
     with open(r'D:\CodeProjects\doc\RapidAI\RapidDoc\output\ea6c0a89-dd49-4d72-b8c0-4e774d24d9dc\auto\ea6c0a89-dd49-4d72-b8c0-4e774d24d9dc.md', 'r', encoding='utf-8') as f:

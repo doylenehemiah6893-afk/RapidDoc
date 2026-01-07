@@ -1,12 +1,9 @@
-import cv2
 import numpy as np
-
-from rapid_doc.model.ocr.rapid_ocr import RapidOcrModel
-from rapid_doc.utils.ocr_utils import get_rotate_crop_image
 
 
 def preprocess_image(img):
     """图像预处理"""
+    import cv2
     # 转换为灰度图
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # 二值化处理——这步很关键
@@ -18,6 +15,11 @@ def preprocess_image(img):
 
 
 if __name__ == '__main__':
+    import cv2
+
+    from rapid_doc.model.ocr.rapid_ocr import RapidOcrModel
+    from rapid_doc.utils.ocr_utils import get_rotate_crop_image
+
     ocr_model = RapidOcrModel()
     bgr_image = cv2.imread('reader_order_01.png')
 
@@ -47,6 +49,3 @@ if __name__ == '__main__':
     ocr_res_list = ocr_model.ocr(cropped_img_list, det=False, tqdm_enable=False)[0]
 
     print(ocr_res_list)
-
-
-

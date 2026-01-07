@@ -3,7 +3,6 @@ import collections
 import re
 import math
 import statistics
-import uuid
 from collections import Counter
 
 import cv2

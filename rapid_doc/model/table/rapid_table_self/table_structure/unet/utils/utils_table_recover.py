@@ -2,7 +2,7 @@
 # @Author: SWHL
 # @Contact: liekkaskono@163.com
 import random
-from typing import Any, Dict, List, Union, Set, Tuple
+from typing import Any, Dict, List, Union, Tuple
 
 import cv2
 import numpy as np
