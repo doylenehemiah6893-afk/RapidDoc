@@ -17,6 +17,7 @@ from rapidocr import RapidOCR, EngineType, OCRVersion, ModelType
 from rapidocr.ch_ppocr_rec import TextRecInput, TextRecOutput
 from tqdm import tqdm
 
+from rapid_doc.utils.color_utils import estimate_text_colors
 from rapid_doc.utils.config_reader import get_device
 from rapid_doc.utils.model_utils import check_openvino
 from rapid_doc.utils.ocr_utils import check_img, preprocess_image, sorted_boxes, merge_det_boxes, update_det_boxes, get_rotate_crop_image
@@ -157,7 +158,9 @@ class RapidOcrModel(object):
                         op_record = {'padding_1': {'left': 0, 'top': 0}, 'preprocess': {'ratio_h': 1.0, 'ratio_w': 1.0}}
                         raw_h, raw_w = ori_img.shape[:2]
                         dt_boxes_np = [np.array(box, dtype=np.float32) for box in dt_boxes]
-                        word_results = self.calc_word_boxes(img, dt_boxes_np, rec_result, op_record, raw_h, raw_w)
+                        word_results = self.calc_word_boxes(
+                            img, dt_boxes_np, rec_result, op_record, raw_h, raw_w, ori_img
+                        )
                         rec_res = list(zip(rec_result.txts, rec_result.scores, word_results))
                     else:
                         rec_res = list(zip(rec_result.txts, rec_result.scores))
@@ -172,6 +175,7 @@ class RapidOcrModel(object):
         op_record: Dict[str, Any],
         raw_h: int,
         raw_w: int,
+        ori_img: np.ndarray | None = None,
     ) -> Any:
         rec_res = self.ocr_engine.cal_rec_boxes(
             img, dt_boxes, rec_res, self.ocr_engine.return_single_char_box
@@ -188,7 +192,15 @@ class RapidOcrModel(object):
                     np.array([bbox]).astype(np.float64), op_record, raw_h, raw_w
                 )
                 origin_words_points = origin_words_points.astype(np.int32).tolist()[0]
-                origin_words_item.append((txt, score, origin_words_points))
+                if ori_img is not None:
+                    char_bg_color, char_fg_color = estimate_text_colors(
+                        ori_img, origin_words_points, img_mode="bgr"
+                    )
+                else:
+                    char_bg_color, char_fg_color = None, None
+                origin_words_item.append(
+                    (txt, score, origin_words_points, None, char_bg_color, char_fg_color)
+                )
 
             if origin_words_item:
                 origin_words.append(tuple(origin_words_item))
@@ -270,7 +282,7 @@ class RapidOcrModel(object):
 
         width_list = [img.shape[1] / float(img.shape[0]) for img in img_list]
 
-        # Sorting can speed up the recognition process
+        # 排序可以加速识别过程
         indices = np.argsort(np.array(width_list))
 
         img_num = len(img_list)
@@ -283,7 +295,7 @@ class RapidOcrModel(object):
             for beg_img_no in range(0, img_num, batch_num):
                 end_img_no = min(img_num, beg_img_no + batch_num)
 
-                # Parameter Alignment for PaddleOCR
+                # PaddleOCR 参数对齐
                 imgC, imgH, imgW = self.text_recognizer.rec_image_shape[:3]
                 max_wh_ratio = imgW / imgH
                 wh_ratio_list = []

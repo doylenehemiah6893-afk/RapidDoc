@@ -11,6 +11,7 @@ import numpy as np
 
 from rapid_doc.utils.boxbase import calculate_overlap_area_in_bbox1_area_ratio, calculate_iou, \
     get_minbox_if_overlap_by_ratio, merge_adjacent_bboxes, is_in
+from rapid_doc.utils.color_utils import estimate_text_colors
 from rapid_doc.utils.enum_class import BlockType, ContentType
 from rapid_doc.utils.ocr_utils import update_det_boxes
 from rapid_doc.utils.pdf_image_tools import get_crop_np_img
@@ -322,7 +323,15 @@ def txt_spans_extract(pdf_page_or_dict, spans, input_img, scale, all_bboxes, all
             span['chars'] = []
             new_spans.append(span)
 
-    need_ocr_spans = fill_char_in_spans(new_spans, page_all_chars, median_span_height, return_word_box, useful_list, scale)
+    need_ocr_spans = fill_char_in_spans(
+        new_spans,
+        page_all_chars,
+        median_span_height,
+        input_img,
+        return_word_box,
+        useful_list,
+        scale,
+    )
 
     """对未填充的span进行ocr"""
     if len(need_ocr_spans) > 0:
@@ -346,7 +355,7 @@ def txt_spans_extract(pdf_page_or_dict, spans, input_img, scale, all_bboxes, all
     return spans
 
 
-def fill_char_in_spans(spans, all_chars, median_span_height, return_word_box=False, useful_list=None, scale=None):
+def fill_char_in_spans(spans, all_chars, median_span_height, input_img, return_word_box=False, useful_list=None, scale=None):
     # 简单从上到下排一下序
     spans = sorted(spans, key=lambda x: x['bbox'][1])
 
@@ -372,7 +381,10 @@ def fill_char_in_spans(spans, all_chars, median_span_height, return_word_box=Fal
 
     need_ocr_spans = []
     for span in spans:
-        chars_to_content(span, return_word_box, useful_list, scale)
+        line_bg_color = None
+        if return_word_box and input_img is not None:
+            line_bg_color, _ = estimate_text_colors(input_img, span['bbox'], img_mode="rgb")
+        chars_to_content(span, return_word_box, useful_list, scale, input_img, line_bg_color)
         # 有的span中虽然没有字但有一两个空的占位符，用宽高和content长度过滤
         if len(span['content']) * span['height'] < span['width'] * 0.5:
             # logger.info(f"maybe empty span: {len(span['content'])}, {span['height']}, {span['width']}")
@@ -449,7 +461,7 @@ def calculate_text_in_span(char_bbox, span_bbox, char):
         else:
             return False
 
-def chars_to_content(span, return_word_box=False, useful_list=None, scale=None):
+def chars_to_content(span, return_word_box=False, useful_list=None, scale=None, input_img=None, line_bg_color=None):
     # 检查span中的char是否为空
     if len(span['chars']) == 0:
         pass
@@ -474,7 +486,20 @@ def chars_to_content(span, return_word_box=False, useful_list=None, scale=None):
                 new_char = char['char']
             content += new_char
             if return_word_box:
-                word_result.append((new_char, 1 , pdf_txt_bbox_to_table_ocr_bbox(char['bbox'].bbox, useful_list, scale)))
+                char_bg_color = None
+                char_fg_color = None
+                if input_img is not None:
+                    char_bg_color, char_fg_color = estimate_text_colors(input_img, char['bbox'], img_mode="rgb")
+                word_result.append(
+                    (
+                        new_char,
+                        1,
+                        pdf_txt_bbox_to_table_ocr_bbox(char['bbox'].bbox, useful_list, scale),
+                        line_bg_color,
+                        char_bg_color,
+                        char_fg_color,
+                    )
+                )
 
         content = __replace_unicode(content)
         content = __replace_ligatures(content)
