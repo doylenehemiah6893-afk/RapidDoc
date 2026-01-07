@@ -1,15 +1,25 @@
+from pathlib import Path
+import os
+
+import pytest
 import pypdfium2 as pdfium
 
-# 打开 PDF 文件
-pdf = pdfium.PdfDocument(r"D:\file\text-pdf\a-practical-guide-to-building-agents.pdf")
 
-# 遍历每一页
-for i in range(len(pdf)):
-    page = pdf[i]
+def test_pdfium_text_extract():
+    """使用 pypdfium2 提取 PDF 文本。"""
+    # 允许通过环境变量传入本地测试 PDF 路径
+    pdf_path = os.environ.get("RAPIDDOC_TEST_PDF")
+    if not pdf_path:
+        pytest.skip("未设置 RAPIDDOC_TEST_PDF 环境变量，跳过本地 PDF 测试。")
 
-    # 加载文本
+    pdf_file = Path(pdf_path)
+    if not pdf_file.exists():
+        pytest.skip(f"PDF 文件不存在: {pdf_file}")
+
+    pdf = pdfium.PdfDocument(str(pdf_file))
+    assert len(pdf) > 0
+
+    page = pdf[0]
     textpage = page.get_textpage()
-
-    # 获取整页文本
     text = textpage.get_text_range()
-    print(f"第 {i + 1} 页内容：\n{text}\n{'-' * 40}")
+    assert isinstance(text, str)

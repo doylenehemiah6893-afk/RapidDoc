@@ -24,8 +24,8 @@ def get_page(
         try:
             with PyPDFium2Parser.lock:
                 page_rotation = page.get_rotation()
-        except:
-            pass
+        except (RuntimeError, ValueError) as exc:
+            print(f"[WARNING] 获取页面旋转信息失败: {exc}")
 
         chars = deduplicate_chars(get_chars(textpage, page_bbox, page_rotation, quote_loosebox))
         spans = get_spans(chars, superscript_height_threshold=superscript_height_threshold, line_distance_threshold=line_distance_threshold)
