@@ -24,7 +24,7 @@ def get_page(
         try:
             with PyPDFium2Parser.lock:
                 page_rotation = page.get_rotation()
-        except:
+        except Exception:
             pass
 
         chars = deduplicate_chars(get_chars(textpage, page_bbox, page_rotation, quote_loosebox))

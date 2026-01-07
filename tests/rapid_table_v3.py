@@ -1,7 +1,7 @@
 from rapidocr import RapidOCR
 
 # from rapid_table import ModelType, RapidTable, RapidTableInput
-from rapidocr import RapidOCR, EngineType, OCRVersion
+from rapidocr import EngineType, OCRVersion
 
 from rapid_doc.model.table.rapid_table_self import ModelType, RapidTable, RapidTableInput, EngineType as TableEngineType
 

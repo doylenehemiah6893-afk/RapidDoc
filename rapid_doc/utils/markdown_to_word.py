@@ -22,7 +22,6 @@ except ImportError:
 # python-docx 用于后处理 Word 文档（添加表格边框等）
 try:
     from docx import Document
-    from docx.shared import Pt
     from docx.oxml.ns import qn
     from docx.oxml import OxmlElement
     PYTHON_DOCX_AVAILABLE = True
@@ -96,7 +95,7 @@ def _html_table_to_markdown(html_table: str) -> str:
                 tag, colspan, rowspan, content = cell
             else:
                 content = cell[0] if cell else ''
-                colspan, rowspan = '', ''
+                colspan = ''
             
             # 清理单元格内容
             content = re.sub(r'<[^>]+>', '', content)  # 移除 HTML 标签

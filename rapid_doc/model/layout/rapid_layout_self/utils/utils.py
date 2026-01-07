@@ -1,7 +1,7 @@
 import hashlib
 import importlib
 from pathlib import Path
-from typing import Tuple, Union
+from typing import Union
 from urllib.parse import urlparse
 
 import cv2

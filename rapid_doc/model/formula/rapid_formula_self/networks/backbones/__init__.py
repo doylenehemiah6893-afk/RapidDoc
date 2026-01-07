@@ -22,6 +22,7 @@ def build_backbone(config, model_type):
         from .rec_lcnetv3 import PPLCNetV3
         from .rec_pphgnetv2 import PPHGNetV2_B4
 
+        _ = (MobileNetV3, PPLCNetV3, PPHGNet_small, PPHGNetV2_B4)
         support_dict = [
             "MobileNetV3",
             "ResNet",
@@ -29,7 +30,7 @@ def build_backbone(config, model_type):
             "ResNet_SAST",
             "PPLCNetV3",
             "PPHGNet_small",
-            'PPHGNetV2_B4',
+            "PPHGNetV2_B4",
         ]
     elif model_type == "rec" or model_type == "cls":
         from .rec_hgnet import PPHGNet_small
@@ -38,6 +39,16 @@ def build_backbone(config, model_type):
         from .rec_svtrnet import SVTRNet
         from .rec_mv1_enhance import MobileNetV1Enhance
         from .rec_pphgnetv2 import PPHGNetV2_B4, PPHGNetV2_B6_Formula
+
+        _ = (
+            MobileNetV1Enhance,
+            MobileNetV3,
+            SVTRNet,
+            PPLCNetV3,
+            PPHGNet_small,
+            PPHGNetV2_B4,
+            PPHGNetV2_B6_Formula,
+        )
         support_dict = [
             "MobileNetV1Enhance",
             "MobileNetV3",
@@ -51,7 +62,7 @@ def build_backbone(config, model_type):
             "PPLCNetV3",
             "PPHGNet_small",
             "PPHGNetV2_B4",
-            "PPHGNetV2_B6_Formula"
+            "PPHGNetV2_B6_Formula",
         ]
     else:
         raise NotImplementedError

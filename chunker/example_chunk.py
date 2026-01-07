@@ -30,7 +30,7 @@ def do_parse(path_list, output_dir):
 
         pdf_file_name = pdf_file_names[idx]
         local_image_dir, local_md_dir = prepare_env(output_dir, pdf_file_name, "auto")
-        image_writer, md_writer = FileBasedDataWriter(local_image_dir), FileBasedDataWriter(local_md_dir)
+        image_writer = FileBasedDataWriter(local_image_dir)
 
         images_list = all_image_lists[idx]
         pdf_doc = all_pdf_docs[idx]

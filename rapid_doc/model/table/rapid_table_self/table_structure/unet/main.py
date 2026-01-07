@@ -13,7 +13,7 @@
 # limitations under the License.
 import cv2
 import numpy as np
-from typing import Any, Dict, List, Tuple, Optional
+from typing import Any, Dict, Tuple, Optional
 from ...inference_engine.base import get_engine
 from ...utils.typings import EngineType
 

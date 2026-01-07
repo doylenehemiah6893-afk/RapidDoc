@@ -1,6 +1,5 @@
-from rapid_doc.model.layout.rapid_layout_self import ModelType, RapidLayout, RapidLayoutInput
-
 if __name__ == '__main__':
+    from rapid_doc.model.layout.rapid_layout_self import ModelType, RapidLayout, RapidLayoutInput
 
     cfg = RapidLayoutInput(model_type=ModelType.PP_DOCLAYOUT_PLUS_L, conf_thresh=0.4)
     model = RapidLayout(cfg=cfg)

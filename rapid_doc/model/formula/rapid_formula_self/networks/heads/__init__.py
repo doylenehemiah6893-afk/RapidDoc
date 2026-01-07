@@ -26,6 +26,7 @@ def build_head(config, **kwargs):
 
     # cls head
     from .cls_head import ClsHead
+    _ = (DBHead, PFHeadLocal, CTCHead, MultiHead, PPFormulaNet_Head, ClsHead)
 
     support_dict = [
         "DBHead",
@@ -37,7 +38,7 @@ def build_head(config, **kwargs):
     ]
 
     module_name = config.pop("name")
-    char_num = config.pop("char_num", 6625)
+    config.pop("char_num", None)
     assert module_name in support_dict, Exception(
         "head only support {}".format(support_dict)
     )

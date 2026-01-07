@@ -1,6 +1,5 @@
 # Copyright (c) Opendatalab. All rights reserved.
 import os
-import time
 
 from tqdm import tqdm
 
@@ -230,7 +229,6 @@ def result_to_middle_json(model_list, images_list, page_dict_list, image_writer,
             else:
                 span['content'] = ''
                 span['score'] = 0.0
-        end = time.perf_counter()
         # print(f"img_crop_list Predict 耗时: {end - start:.3f} 秒, 共 {len(img_crop_list)} 张图")
 
     """分段"""

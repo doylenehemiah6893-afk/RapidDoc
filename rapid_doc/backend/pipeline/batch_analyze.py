@@ -1,4 +1,3 @@
-import time
 from PIL import Image
 from typing import List, Tuple
 
@@ -422,7 +421,7 @@ class BatchAnalyze:
                                             for item in ocr_spans if item.get('content')
                                         ]
                                     ocr_result = [list(x) for x in zip(*filtered)] if filtered else []
-                                except:
+                                except Exception:
                                     logger.warning('table ocr_result get from pdf error')
                         # 进行 OCR-rec 识别文字框
                         if not ocr_result and det_res:
@@ -519,7 +518,6 @@ class BatchAnalyze:
             # Process each language separately
             for lang, img_crop_list in img_crop_lists_by_lang.items():
                 if len(img_crop_list) > 0:
-                    start = time.perf_counter()
                     # Get OCR results for this language's images
 
                     ocr_model = atom_model_manager.get_atom_model(

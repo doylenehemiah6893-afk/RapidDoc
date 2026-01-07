@@ -76,7 +76,7 @@ class RapidLayoutModel(object):
             # import uuid
             # results.vis(f"output-PP_DOCLAYOUT/{uuid.uuid4().hex}__{img_idx}.png")
             layout_res = []
-            img, boxes, scores, class_names, elapse = results.img, results.boxes, results.scores, results.class_names, results.elapse
+            img, boxes, scores, class_names = results.img, results.boxes, results.scores, results.class_names
             orders = results.orders if results.orders is not None else [-1] * len(boxes)
             scale = scales[img_idx]
             restore_scale = 1.0 / scale

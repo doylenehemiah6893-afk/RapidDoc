@@ -59,14 +59,6 @@ class DBHead(nn.Module):
     def __init__(self, in_channels, k=50, **kwargs):
         super(DBHead, self).__init__()
         self.k = k
-        binarize_name_list = [
-            'conv2d_56', 'batch_norm_47', 'conv2d_transpose_0', 'batch_norm_48',
-            'conv2d_transpose_1', 'binarize'
-        ]
-        thresh_name_list = [
-            'conv2d_57', 'batch_norm_49', 'conv2d_transpose_2', 'batch_norm_50',
-            'conv2d_transpose_3', 'thresh'
-        ]
         self.binarize = Head(in_channels, **kwargs)# binarize_name_list)
         self.thresh = Head(in_channels, **kwargs)#thresh_name_list)
 
