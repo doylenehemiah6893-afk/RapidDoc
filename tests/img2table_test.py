@@ -1,23 +1,22 @@
-from io import BytesIO
-# from IPython.display import display_html
+import os
 
-from img2table.document import PDF
+import pytest
 
-# PaddleOCR
-# from img2table.ocr import PaddleOCR
-# paddle_ocr = PaddleOCR(lang="en", kw={"use_dilation": True})
 
-# pdf = PDF(src="D:\\file\\text-pdf\\示例1-论文模板.pdf")
-pdf = PDF(src="D:\\file\\text-pdf\\比亚迪财报.pdf")
+def test_img2table_extract():
+    """表格抽取测试（缺少本地文件时跳过）"""
+    pdf_path = r"D:\file\text-pdf\比亚迪财报.pdf"
+    if not os.path.exists(pdf_path):
+        pytest.skip("测试文件不存在，跳过该测试。")
 
-# Extract tables
-extracted_tables = pdf.extract_tables(ocr=None,
-                                      implicit_rows=False,
-                                      borderless_tables=False,
-                                      min_confidence=50)
+    from img2table.document import PDF
 
-print(extracted_tables)
+    pdf = PDF(src=pdf_path)
+    extracted_tables = pdf.extract_tables(
+        ocr=None,
+        implicit_rows=False,
+        borderless_tables=False,
+        min_confidence=50,
+    )
 
-for page, tables in extracted_tables.items():
-    for idx, table in enumerate(tables):
-        print(table.html_repr(title=f"Page {page + 1} - Extracted table n°{idx + 1}"))
+    assert extracted_tables

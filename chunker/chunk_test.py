@@ -1,7 +1,8 @@
 import json
-from chunker.text_splitters import MarkdownTextSplitter, num_tokens_from_string
-from chunker.get_bbox_page_fast import get_bbox_for_chunk, get_blocks_from_middle
+import os
 import re
+
+import pytest
 from bs4 import BeautifulSoup
 
 def clean_text_for_embedding(text: str) -> str:
@@ -51,20 +52,33 @@ def clean_text_for_embedding(text: str) -> str:
     return text.strip()
 
 
-if __name__ == '__main__':
+def test_chunker_basic():
+    """分块流程测试（缺少本地文件时跳过）"""
+    markdown_path = (
+        r"D:\CodeProjects\doc\RapidAI\RapidDoc\output\ea6c0a89-dd49-4d72-b8c0-4e774d24d9dc"
+        r"\auto\ea6c0a89-dd49-4d72-b8c0-4e774d24d9dc.md"
+    )
+    middle_json_path = (
+        r"D:\CodeProjects\doc\RapidAI\RapidDoc\output\ea6c0a89-dd49-4d72-b8c0-4e774d24d9dc"
+        r"\auto\ea6c0a89-dd49-4d72-b8c0-4e774d24d9dc_middle.json"
+    )
+    if not os.path.exists(markdown_path) or not os.path.exists(middle_json_path):
+        pytest.skip("测试文件不存在，跳过该测试。")
 
+    from chunker.text_splitters import MarkdownTextSplitter, num_tokens_from_string
+    from chunker.get_bbox_page_fast import get_bbox_for_chunk, get_blocks_from_middle
 
-    with open(r'D:\CodeProjects\doc\RapidAI\RapidDoc\output\ea6c0a89-dd49-4d72-b8c0-4e774d24d9dc\auto\ea6c0a89-dd49-4d72-b8c0-4e774d24d9dc.md', 'r', encoding='utf-8') as f:
-        markdown_document = f.read()
+    with open(markdown_path, "r", encoding="utf-8") as handle:
+        markdown_document = handle.read()
 
-    with open(r'D:\CodeProjects\doc\RapidAI\RapidDoc\output\ea6c0a89-dd49-4d72-b8c0-4e774d24d9dc\auto\ea6c0a89-dd49-4d72-b8c0-4e774d24d9dc_middle.json', 'r', encoding='utf-8') as f:
-        middle_json_content = json.load(f)
+    with open(middle_json_path, "r", encoding="utf-8") as handle:
+        middle_json_content = json.load(handle)
 
-    # 分块
     text_splitter = MarkdownTextSplitter(
         chunk_token_num=512, min_chunk_tokens=50
     )
     chunk_list = text_splitter.split_text(markdown_document)
+    assert chunk_list
 
     max_tokens = 0
     max_chunk = None
@@ -77,9 +91,10 @@ if __name__ == '__main__':
 
     max_chunk_txt = clean_text_for_embedding(max_chunk)
     txt_tokens = num_tokens_from_string(max_chunk_txt)
-    # 定位分块原始位置
+    assert txt_tokens > 0
+
     block_list = get_blocks_from_middle(middle_json_content)
     matched_global_indices = set()
-    for i, chunk in enumerate(chunk_list):
+    for chunk in chunk_list:
         position_int_temp = get_bbox_for_chunk(chunk.strip(), block_list, matched_global_indices)
-        print(position_int_temp)
+        assert position_int_temp is not None

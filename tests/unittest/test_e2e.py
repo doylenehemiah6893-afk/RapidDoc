@@ -3,6 +3,7 @@ import copy
 import json
 import os
 from pathlib import Path
+import pytest
 from loguru import logger
 from bs4 import BeautifulSoup
 from fuzzywuzzy import fuzz
@@ -22,6 +23,8 @@ from rapid_doc.backend.pipeline.model_json_to_middle_json import (
 )
 
 def test_pipeline_with_two_config():
+    if os.environ.get("RAPIDDOC_RUN_HEAVY_TESTS") != "1":
+        pytest.skip("未开启耗时测试，跳过该测试。")
     __dir__ = os.path.dirname(os.path.abspath(__file__))
     pdf_files_dir = os.path.join(__dir__, "pdfs")
     output_dir = os.path.join(__dir__, "output")
@@ -158,9 +161,9 @@ def write_infer_result(
 
 def validate_html(html_content):
     try:
-        soup = BeautifulSoup(html_content, "html.parser")
+        BeautifulSoup(html_content, "html.parser")
         return True
-    except Exception as e:
+    except Exception:
         return False
 
 
